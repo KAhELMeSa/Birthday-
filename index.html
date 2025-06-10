@@ -3,149 +3,224 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Birthday Card</title>
+  <title>Envelope</title>
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans&family=Pacifico&display=swap" rel="stylesheet">
   <style>
     body {
-      margin: 0;
-      padding: 0;
-      background: #fff4f4;
-      font-family: 'Open Sans', sans-serif;
-      text-align: center;
-      overflow-x: hidden;
-    }
+  margin: 0;
+  padding: 0;
+  background: #fff4f4;
+  font-family: 'Open Sans', sans-serif;
+  overflow: hidden; /* Disable scrolling */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  min-height: 100vh;
+  text-align: center;
+}
 
     h1 {
       color: #ff4081;
-      font-family: 'Open Sans', sans-serif;
-      font-size: 1.8rem;
+      font-family: 'Pacifico', cursive;
+      font-size: 2.2rem;
       margin: 2rem 0 1rem;
     }
 
     .card-wrapper {
       margin: 0 auto;
-      width: 90%;
-      max-width: 500px;
-      perspective: 1000px;
-      cursor: pointer;
-    }
-
-    .card {
-      width: 100%;
-      height: auto;
-      transform-style: preserve-3d;
-      transition: transform 1s;
+      width: 300px;
+      height: 200px;
       position: relative;
+      cursor: pointer;
+      perspective: 1000px;
+      z-index: 1;
     }
 
-    .card.opened {
-      transform: rotateY(180deg);
-    }
-
-    .card-front, .card-back {
+    .envelope {
       width: 100%;
-      min-height: 250px;
-      padding: 2rem;
-      box-sizing: border-box;
+      height: 100%;
+      position: relative;
+      background: palevioletred;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 8px 20px hotpink;
+    }
+
+    .flap {
+      width: 100%;
+      height: 100%;
+      background: #e7356f;
+      clip-path: polygon(0 0, 50% 50%, 100% 0, 100% 100%, 0 100%);
+      transform-origin: top center;
+      transform: rotateX(0deg);
+      transition: transform 1s ease;
       position: absolute;
       top: 0;
       left: 0;
-      backface-visibility: hidden;
-      border-radius: 12px;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-family: 'Open Sans', sans-serif;
+      z-index: 2;
     }
 
-    .card-front {
-      background: #ff4081;
-      color: white;
-      font-size: 1.5rem;
-      font-weight: bold;
+    .envelope.opened .flap {
+      transform: rotateX(-120deg);
     }
 
-    .card-back {
+    .letter {
+      position: absolute;
+      top: 210px; /* Below the envelope */
+      left: 50%;
+      transform: translateX(-50%) translateY(0) scale(0.9);
+      width: 90%;
       background: white;
-      transform: rotateY(180deg);
-      color: #444;
-      font-size: 1.1rem;
-      line-height: 1.6;
-      text-align: left;
-      flex-direction: column;
-      justify-content: flex-start;
-      align-items: flex-start;
+      border-radius: 10px;
+      padding: 1rem;
+      box-sizing: border-box;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      opacity: 0;
+      transition: all 1s ease;
+      z-index: 3;
     }
 
-    .card-back h2 {
+    .envelope.opened ~ .letter {
+      transform: translateX(-50%) translateY(-160px) scale(1);
+      opacity: 1;
+    }
+
+    .letter h2 {
       font-family: 'Pacifico', cursive;
       color: #ff4081;
-      font-size: 2rem;
-      margin-top: 0;
-      margin-bottom: 1rem;
-      align-self: center;
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
     }
 
-    .card-back p {
-      margin: 0;
+    .letter p {
+      font-size: 0.95rem;
+      color: #333;
+      line-height: 1.6;
     }
 
     canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      z-index: 1;
-      pointer-events: none;
-    }
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 0; /* behind everything */
+  pointer-events: none;
+}
+
 
     audio {
       display: none;
     }
+
+    img {
+      max-width: 100%;
+      border-radius: 10px;
+      margin-top: 1rem;
+    }
+    
+    #typed-text {
+  text-align: center;
+  white-space: pre-line;
+  width: 100%;
+  margin-top: 1rem;
+  font-family: cursive;
+  font-size: 25px;
+}
+
+#extra-button {
+  opacity: 0;
+  transition: opacity 1s ease-in;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  margin-top: 1.5rem;
+  background-color: #ff4081;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  align-self: center;
+  font-family: 'Pacifico', cursive;
+}
+
+#extra-button.show {
+  opacity: 1;
+}
+
+
+
   </style>
 </head>
 <body>
 
-  <h1>(⁠｡⁠•̀⁠ᴗ⁠-⁠)🎉</h1>
+  <h1 id="header-emoji">(⁠｡⁠•̀⁠ᴗ⁠-⁠)🎉</h1>
 
-  <div class="card-wrapper" onclick="openCard()">
-    <div class="card" id="card">
-      <div class="card-front">Click to Open</div>
-      <div class="card-back">
-        <h2> Happy Birthday! </h2>
-        <h2>🎉🎂</h2>
-        <p align="center">
-          Happy Birthday 18th birthday LYRE!(⁠*⁠＾⁠3⁠＾⁠)⁠/🎉. I just wanted to take a moment to wish you well today. I hope your day is filled with joy, peace, and the kind of happiness that lasts more than just today's celebration.
-<br></br>
- You deserve to feel loved, appreciated, and proud of the person you’ve become.
-<br></br>
-So today, I hope you smile a little brighter, laugh a little louder, and feel surrounded by people who genuinely care about you.
-<br></br>
-Happy birthday again. 
-<br></br>
--Mesael
-        </p>
-        <br></br>
-        <img src="tenor.gif" alt="Birthday GIF" style="max-width: 100%; border-radius: 10px; margin-bottom: 1rem;" />
-      </div>
+  <div class="card-wrapper" onclick="openEnvelope()">
+    <div class="envelope" id="envelope">
+      <div class="flap"></div>
+    </div>
+    <div class="letter" id="letter">
+      <h2>Happy Birthday!</h2>
+      <p id="typed-text" align="left" style="white-space: pre-line;"></p>
+     <button id="extra-button" onclick="goToNextPage()">Click Here Too!</button>
     </div>
   </div>
 
   <canvas id="confetti"></canvas>
   <audio id="music" loop>
-  <source src="Gawr Gura plays her bgm on Ukulele.m4a" type="audio/mpeg">
-</audio>
+    <source src="/Gawr Gura plays her bgm on Ukulele.m4a" type="audio/mpeg">
+  </audio>
 
   <script>
     let opened = false;
-    function openCard() {
+    function openEnvelope() {
       if (opened) return;
       opened = true;
 
-      document.getElementById('card').classList.add('opened');
+      const envelope = document.getElementById('envelope');
+      envelope.classList.add('opened');
       document.getElementById('music').play();
       startConfetti();
+      
+      setTimeout(() => {
+    document.body.style.overflow = 'auto';
+  }, 1500); // Adjust timing if your animation takes longer
+  const birthdayMessage = `Happy 18th birthday LYRE! (⁠*⁠＾⁠3⁠＾⁠)⁠/🎉
+
+I just wanted to take a moment to wish you well today. I hope your day is filled with joy, peace, and the kind of happiness that lasts beyond just one celebration.
+
+You deserve to feel loved, appreciated, and proud of the person you’ve become.
+
+So today, I hope you smile a little brighter, laugh a little louder, and feel surrounded by people who genuinely care about you.
+
+Happy birthday again.
+
+- Mesael`;
+
+  setTimeout(() => {
+    typeWriter(birthdayMessage, 'typed-text', 30);
+  }, 1200); 
+  
+  document.getElementById('header-emoji').outerHTML = `
+  <img src="/tenor.gif" alt="Birthday GIF" style="max-width: 180px; border-radius: 12px; margin: 1.5rem auto;" />
+`;
     }
+
+function typeWriter(text, elementId, speed) {
+  let i = 0;
+  const target = document.getElementById(elementId);
+  function type() {
+    if (i < text.length) {
+      target.innerHTML += text.charAt(i);
+      i++;
+      setTimeout(type, speed);
+    } else {
+      // When done typing, show the button
+      document.getElementById("extra-button").classList.add("show");
+    }
+  }
+  type();
+}
+
 
     function startConfetti() {
       const canvas = document.getElementById('confetti');
@@ -204,6 +279,11 @@ Happy birthday again.
         canvas.height = window.innerHeight;
       });
     }
+    
+    function goToNextPage() {
+  window.location.href = "cake.html"; // Change this to your actual file
+}
+
   </script>
 
 </body>
